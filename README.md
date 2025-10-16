@@ -1,119 +1,128 @@
-README
-# Reddit VeteransBenefits Subreddit Scraper and Report Generator
+# Reddit VeteransBenefits Subreddit Scraper and Report Generator (Public Version)
 
-This Python script scrapes posts and comments from the r/VeteransBenefits subreddit using keyword-based searches. It includes deduplication, multi-format export (JSON, CSV, TXT), and logging features to support research workflows. After scraping, the script can automatically trigger summary report generation, PDF report creation, and optional syncing to Google Sheets.
+This repository contains a Python script that scrapes posts and comments from the **r/VeteransBenefits** subreddit using keyword-based searches. It supports deduplication, exports data in multiple formats (JSON, CSV, TXT), and logs run statistics for transparency and reproducibility. After scraping, the script can optionally trigger report generation and data syncing.
 
 ---
 
-## Features
+## Key Features
 
 * Scrapes posts containing keywords from `keywords.txt`
-* Collects comments from popular (hot) posts that contain the same keywords
-* Deduplicates content across runs using `seen_ids.json`
-* Exports results to JSON, CSV, and TXT formats in the `results/` folder
-* Logs run statistics (post count, comment count, oldest/newest dates, duplicates skipped) to `summary_log.csv`
-* Automatically runs:
-
-  * `generate_summary_report.py` for data summaries and visualizations
-  * `generate_pdf_report.py` for PDF output
-  * `sync_to_google_sheet.py` for syncing summary data to Google Sheets
-* Designed for repeatable, incremental data collection
+* Collects comments from top (hot) posts that include those keywords
+* Deduplicates data across runs using `seen_ids.json`
+* Saves results in JSON, CSV, and TXT formats inside the `results/` folder
+* Logs per-run statistics (post count, comment count, oldest/newest dates, duplicates skipped) to `summary_log.csv`
+* Optionally runs:
+  * `generate_summary_report.py` – creates data summaries and visualizations
+  * `generate_pdf_report.py` – exports findings to PDF
+  * `sync_to_google_sheet.py` – syncs summary data to Google Sheets (if enabled)
+* Designed for **incremental, reproducible, and ethical data collection**
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```bash
 VeteransBenefits_VA_Claim_Help/
-├── keywords.txt
-├── summary_log.csv
-├── seen_ids.json
-├── results/               # Output .json, .csv, .txt files
-├── va_claim_help_scraper.py
-├── generate_summary_report.py
-├── generate_pdf_report.py
-├── sync_to_google_sheet.py
+├── keywords.txt                  # List of search terms (one per line)
+├── summary_log.csv               # Run statistics
+├── seen_ids.json                 # Deduplication record
+├── results/                      # Output .json, .csv, .txt files
+├── va_claim_help_scraper.py      # Main scraping script
+├── generate_summary_report.py    # Optional analytics
+├── generate_pdf_report.py        # Optional PDF export
+├── sync_to_google_sheet.py       # Optional Google Sheets sync
 ├── requirements.txt
+├── .env.example                  # Sample environment variable file
 └── .gitignore
 ```
 
 ---
 
-## Setup Instructions
+## ⚙️ Setup Instructions
 
-1. **Clone or download the repository**
-2. **Install required dependencies:**
-
+1. **Clone or download this repository**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-3. **Set up Reddit API access:**
-
-   * Create a Reddit App (type: script) at [https://www.reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
-   * Save your `client_id`, `client_secret`, `username`, and `password` in environment variables (recommended) or in the script
-4. **Prepare keywords file:**
-
-   * Place search terms in `keywords.txt`, one per line
-5. **Run the script:**
-
+3. **Set up Reddit API credentials:**
+   * Create a Reddit app (type: *script*) at [https://www.reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
+   * Copy the provided `.env.example` file to `.env` and fill in your credentials:
+     ```bash
+     REDDIT_CLIENT_ID=your_id_here
+     REDDIT_CLIENT_SECRET=your_secret_here
+     REDDIT_USERNAME=your_username
+     REDDIT_PASSWORD=your_password
+     REDDIT_USER_AGENT=va-claims-scraper/1.0 by u/your_username
+     ```
+4. **Prepare keywords:**
+   * Add search terms to `keywords.txt` (one per line)
+5. **Run the scraper:**
    ```bash
    python3 va_claim_help_scraper.py
    ```
+6. (Optional) **Enable Google Sheets sync:**
+   * Add to your `.env` file:
+     ```bash
+     SHEETS_ENABLED=true
+     SHEETS_ID=your_google_sheet_id
+     SHEETS_RANGE=Sheet1!A1
+     ```
 
 ---
 
-## Throttling and Error Handling
+## Throttling & Error Handling
 
-The script uses `time.sleep()` to space out requests and avoid hitting Reddit’s API rate limits. Deduplication is handled by tracking processed IDs in `seen_ids.json`. Errors in fetching comments or running reports are caught and logged without halting the entire run.
+* The script uses small pauses (`time.sleep()`) between requests to comply with Reddit’s rate limits.
+* Deduplication ensures no post or comment is logged twice.
+* Errors (e.g., missing comments, failed API calls) are caught and logged but do not stop execution.
 
 ---
 
 ## Dependencies
 
-This project uses the following Python libraries:
+The script relies on the following libraries:
 
-* `praw` – Reddit API access (BSD-2-Clause license)
-* `prawcore` – Reddit API utilities (BSD-2-Clause license)
-* `pandas` – data handling and summary tables (BSD-3-Clause license)
-* `matplotlib` – visualizations (PSF license)
+* `praw` – Reddit API wrapper (BSD-2-Clause)
+* `prawcore` – Reddit API utilities (BSD-2-Clause)
+* `pandas` – Data manipulation (BSD-3-Clause)
+* `matplotlib` – Visualizations (PSF)
 * `fpdf` – PDF generation (LGPL)
-* `gspread` + `oauth2client` – Google Sheets syncing (Apache 2.0 license)
+* `gspread` + `oauth2client` – Google Sheets integration (Apache 2.0)
 
-Install them via `requirements.txt`.
+All dependencies can be installed from `requirements.txt`.
 
 ---
 
-## License and Use
+## License & Use
 
-This project is released under the **MIT License**.
+Released under the **MIT License**. 
 
-Dependencies keep their original licenses (listed above).
-
-This script uses the Reddit API through PRAW. Anyone running it is responsible for following [Reddit’s API Terms of Use](https://www.redditinc.com/policies/data-api-terms), including rate limits and restrictions on storing or redistributing content. This repository includes only the code, not large scraped datasets.
+This project interacts with Reddit’s API via PRAW. Users are responsible for following [Reddit’s API Terms of Use](https://www.redditinc.com/policies/data-api-terms), including restrictions on rate limits, data storage, and redistribution. No scraped data is included in this repository.
 
 ---
 
 ## .gitignore
 
 ```gitignore
-# Python bytecode
+# Bytecode and cache
 __pycache__/
 *.py[cod]
 
-# Virtual environments
+# Environments
 venv/
 .env
 
-# API keys or service files
+# Credentials and tokens
 *.json
 
-# Output and logs
-scraper.log
+# Outputs and logs
 results/
 summary_log*.csv
 seen_ids.json
+scraper.log
 
-# OS-specific
+# OS-specific files
 .DS_Store
 ```
 
@@ -121,4 +130,4 @@ seen_ids.json
 
 ## Acknowledgment
 
-This README was drafted with the assistance of ChatGPT-5 to help with clarity and formatting.
+This open version was collaboratively refined with assistance from **ChatGPT‑5**, focusing on reproducibility, privacy, and readability for researchers exploring digital discourse.
