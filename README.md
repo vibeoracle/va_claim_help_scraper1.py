@@ -71,6 +71,58 @@ VeteransBenefits_VA_Claim_Help/
 
 ---
 
+## 🚀 Preflight / First-Run Checklist
+
+Before your first full scrape, run these quick checks to avoid common setup issues:
+
+1. **Python version** — Confirm you’re running **3.10 or newer**  
+   ```bash
+   python --version
+   ```
+
+2. **Dependencies installed** — Make sure required packages are available  
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Reddit app configured** — Verify your Reddit app is type **“script”** under [https://www.reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
+
+4. **.env file created** — Ensure your `.env` file in the project folder contains:
+   ```bash
+   CLIENT_ID=your_client_id
+   CLIENT_SECRET=your_client_secret
+   USER_AGENT=va_claim_help_scraper1 by u/<your_username> (contact: you@example.com)
+   # Optional if using password grant (2FA must be off):
+   REDDIT_USERNAME=your_username
+   REDDIT_PASSWORD=your_password
+   ```
+
+5. **Keywords file ready** — Confirm `keywords.txt` exists and lists one keyword or phrase per line.  
+   Example:
+   ```
+   service connected
+   denied claim
+   C&P exam
+   ```
+
+6. **Run the built-in preflight tool** — This checks your Python version, dependencies, credentials, and permissions:  
+   ```bash
+   python va_claim_help_scraper1.py --dotenv --doctor
+   ```
+   Fix any issues it reports before continuing.
+
+7. **Test run (quick mode)** — Run a shorter test that skips comments:  
+   ```bash
+   python va_claim_help_scraper1.py --dotenv --skip-comments --verbose
+   ```
+   When everything looks good, remove `--skip-comments` for full runs.
+
+8. **Optional helper steps** — If present, omit the `--no-summary`, `--no-pdf`, and `--no-sync` flags to automatically:  
+   * Generate summary and PDF reports  
+   * Sync summary data to Google Sheets (OAuth may open a browser on first run)
+
+---
+
 ## Throttling & Error Handling
 
 * The script uses small pauses (`time.sleep()`) between requests to comply with Reddit’s rate limits.
